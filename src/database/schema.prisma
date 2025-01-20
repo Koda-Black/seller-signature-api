@@ -1,9 +1,6 @@
-// Add a new model for document instances
-
 generator client {
   provider = "prisma-client-js"
 }
-
 
 datasource db {
   provider = "postgresql"
@@ -22,13 +19,15 @@ model Agreement {
   signedBy         String
   sellerName       String
   createdAt        DateTime @default(now())
-  documents        DocumentInstance[]
+  documents        DocumentInstance[] 
 }
 
 model DocumentInstance {
   id          Int      @id @default(autoincrement())
   agreementId Int
-  status      String
+  status      String   // Status like "signed", "pending", etc.
+  signatureRequestId String? 
   createdAt   DateTime @default(now())
+  
   Agreement   Agreement @relation(fields: [agreementId], references: [id])
 }

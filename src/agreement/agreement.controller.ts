@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { AgreementsService } from './agreement.service';
 import { AgreementDto } from './dto/agreement.dto'; // Import your DTO
+// import * as DropboxSign from '@dropbox/sign';
 
 @Controller('agreements')
 export class AgreementsController {
@@ -19,7 +20,6 @@ export class AgreementsController {
       const agreement =
         await this.agreementsService.createAgreement(agreementDto);
 
-      // Handle potential errors during agreement creation
       if (!agreement) {
         console.error('Error creating agreement:');
 

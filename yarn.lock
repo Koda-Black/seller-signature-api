@@ -320,6 +320,16 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
+"@dropbox/sign@^1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@dropbox/sign/-/sign-1.8.0.tgz#18695346d1f0ea146e952f44be5cacc60a82f31f"
+  integrity sha512-Bnq6sYP+o7gFYGaxEQ0g0ZDkGFK6z8Yd+O0A77KHPN+QZaoGAVI+Ifn021kR57aW1dUXpW+hW+iQBkl2HPl/LA==
+  dependencies:
+    axios "^1.7.0"
+    bluebird "^3.7.2"
+    form-data "^4.0.0"
+    qs "^6.10.3"
+
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.4.1.tgz#d1145bf2c20132d6400495d6df4bf59362fd9d56"
@@ -976,6 +986,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/hellosign-embedded@^2.0.6":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@types/hellosign-embedded/-/hellosign-embedded-2.0.6.tgz#df73e72b7eed2741b4e9ee5f3f61275cbe207eb4"
+  integrity sha512-va0CXIpceiioKXVA2RsFYWvMWU1vW59O5kP45fmP+TpVn/KaBeVXPlbko2qg0u1sOcfGRMLUyD53ztm0d7H0SA==
+
 "@types/http-errors@*":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@types/http-errors/-/http-errors-2.0.4.tgz#7eb47726c391b7345a6ec35ad7f4de469cf5ba4f"
@@ -1494,7 +1509,7 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
-axios@^1.7.9:
+axios@^1.7.0, axios@^1.7.9:
   version "1.7.9"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.9.tgz#d7d071380c132a24accda1b2cfc1535b79ec650a"
   integrity sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==
@@ -1589,6 +1604,11 @@ bl@^4.1.0:
     buffer "^5.5.0"
     inherits "^2.0.4"
     readable-stream "^3.4.0"
+
+bluebird@^3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
+  integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
 
 body-parser@1.20.3:
   version "1.20.3"
@@ -4105,7 +4125,7 @@ qs@6.13.0:
   dependencies:
     side-channel "^1.0.6"
 
-qs@^6.11.0:
+qs@^6.10.3, qs@^6.11.0:
   version "6.14.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.14.0.tgz#c63fa40680d2c5c941412a0e899c89af60c0a930"
   integrity sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==
