@@ -1,4 +1,3 @@
-// src/agreements/agreements.service.ts
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { AgreementDto } from './dto/agreement.dto';
@@ -14,7 +13,7 @@ export class AgreementsService {
   async createAgreement(data: AgreementDto) {
     const newAgreement = await this.prisma.agreement.create({ data });
 
-    // Call Dropbox Sign service to create an embedded signature request
+    // Prepare data for Dropbox Sign
     const templateFields = {
       sellerSign: data.sellerSign,
       sellerName: data.sellerName,
@@ -24,22 +23,30 @@ export class AgreementsService {
       extensionPeriod: data.extensionPeriod,
       extensionAmount: data.extensionAmount,
       propertyLocation: data.propertyLocation,
+      sellerEmail: data.sellerEmail,
     };
 
-    const signatureRequest =
-      await this.dropboxSignService.createEmbeddedSignatureRequest(
+    // Call Dropbox Sign service to send the signature request
+    const response =
+      await this.dropboxSignService.createSignatureRequestWithTemplate(
         templateFields,
       );
 
-    // Save Dropbox Sign data to the database (optional)
+    // Extract the necessary IDs from the response
+    if (!response || !response.signatureRequest) {
+      throw new Error(
+        'Error: Dropbox Sign did not return a valid signature request ID.',
+      );
+    }
+
+    // Save Dropbox Sign data to the database
     const documentData = {
       agreementId: newAgreement.id,
-      signatureRequestId: signatureRequest.signature_request_id,
-      status: signatureRequest.status,
+      signatureRequestId: response.signatureRequest.signatureRequestId,
+      status: 'submitted',
     };
     await this.prisma.documentInstance.create({ data: documentData });
 
-    // Send a copy of the signed document to the user (email or PDF processing can be added here)
     return newAgreement;
   }
 

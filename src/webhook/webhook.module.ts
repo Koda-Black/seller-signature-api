@@ -1,10 +1,13 @@
-// src/webhooks/webhook.module.ts
 import { Module } from '@nestjs/common';
-import { WebhooksController } from './webhook.controller';
+import { PrismaModule } from '../database/prisma.module';
+import { WebhookController } from './webhook.controller';
+import { WebhookService } from './webhook.service';
 import { DropboxSignService } from '../dropbox/dropbox.service';
 
 @Module({
-  controllers: [WebhooksController],
-  providers: [DropboxSignService],
+  imports: [PrismaModule],
+  controllers: [WebhookController],
+  providers: [WebhookService, DropboxSignService],
+  exports: [WebhookService],
 })
 export class WebhookModule {}

@@ -1,53 +1,66 @@
 import {
   Controller,
-  Get,
   Post,
+  Get,
   Body,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { AgreementsService } from './agreement.service';
-import { AgreementDto } from './dto/agreement.dto'; // Import your DTO
-// import * as DropboxSign from '@dropbox/sign';
+import { DropboxSignService } from '../dropbox/dropbox.service';
+import { AgreementDto } from './dto/agreement.dto';
 
 @Controller('agreements')
 export class AgreementsController {
-  constructor(private agreementsService: AgreementsService) {}
+  constructor(
+    private readonly agreementsService: AgreementsService,
+    private readonly dropboxSignService: DropboxSignService,
+  ) {}
 
   @Post()
-  async create(@Body() agreementDto: AgreementDto) {
+  async createAgreement(@Body() agreementDto: AgreementDto) {
     try {
+      // Step 1: Create agreement record in the database
       const agreement =
         await this.agreementsService.createAgreement(agreementDto);
 
       if (!agreement) {
-        console.error('Error creating agreement:');
-
-        // throw new HttpException(
-        //   'Failed to create agreement',
-        //   HttpStatus.INTERNAL_SERVER_ERROR,
-        // );
+        throw new HttpException(
+          'Failed to create agreement',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
 
-      // Store document instance only after successful agreement creation
-      await this.agreementsService.storeDocumentInstance({
-        agreementId: agreement.id,
-        status: 'created',
-      });
+      // Step 2: Store document instance
+      const documentInstance =
+        await this.agreementsService.storeDocumentInstance({
+          agreementId: agreement.id,
+          status: 'created',
+        });
 
-      return agreement;
+      // Step 3: Trigger Dropbox Sign signature request
+      const signatureRequest =
+        await this.dropboxSignService.createSignatureRequestWithTemplate({
+          ...agreementDto,
+          agreementId: agreement.id,
+        });
+
+      return {
+        agreement,
+        documentInstance,
+        signatureRequest,
+      };
     } catch (error) {
-      // Handle errors during agreement creation or document instance storage
       console.error('Error creating agreement:', error);
-      // throw new HttpException(
-      //   'Error creating agreement',
-      //   HttpStatus.INTERNAL_SERVER_ERROR,
-      // );
+      throw new HttpException(
+        'Error creating agreement',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Get()
-  async findAll() {
+  async getAgreements() {
     return this.agreementsService.getAgreements();
   }
 }

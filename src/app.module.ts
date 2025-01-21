@@ -1,12 +1,17 @@
-// src/app.module.ts
 import { Module } from '@nestjs/common';
-import { AgreementsService } from './agreement/agreement.service';
-import { PrismaService } from './database/prisma.service';
-import { DropboxSignService } from './dropbox/dropbox.service';
+import { ConfigModule } from '@nestjs/config';
+import { AgreementsModule } from './agreement/agreement.module';
+import { DropboxModule } from './dropbox/dropbox.module';
 import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
-  imports: [WebhookModule],
-  providers: [AgreementsService, PrismaService, DropboxSignService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    WebhookModule,
+    AgreementsModule,
+    DropboxModule,
+  ],
 })
 export class AppModule {}

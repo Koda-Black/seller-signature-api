@@ -1,8 +1,17 @@
-import { IsString, IsDate, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsEmail,
+} from 'class-validator';
 
 export class AgreementDto {
   @IsString()
   sellerName: string;
+
+  @IsEmail()
+  sellerEmail: string;
 
   @IsString()
   propertyLocation: string;

@@ -19,15 +19,15 @@ model Agreement {
   signedBy         String
   sellerName       String
   createdAt        DateTime @default(now())
-  documents        DocumentInstance[] 
+  documents        DocumentInstance[] // Relation to DocumentInstance
 }
 
 model DocumentInstance {
-  id          Int      @id @default(autoincrement())
-  agreementId Int
-  status      String   // Status like "signed", "pending", etc.
-  signatureRequestId String? 
-  createdAt   DateTime @default(now())
+  id                   Int      @id @default(autoincrement())
+  agreementId          Int      // Foreign key linking to Agreement
+  signatureRequestId   String
+  status               String   // Status like "signed", "pending", etc.
+  createdAt            DateTime @default(now())
   
-  Agreement   Agreement @relation(fields: [agreementId], references: [id])
+  Agreement            Agreement @relation(fields: [agreementId], references: [id]) // Define the relationship
 }

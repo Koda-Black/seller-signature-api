@@ -1,45 +1,60 @@
-// src/dropbox-sign/dropbox-sign.service.ts
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as DropboxSign from '@dropbox/sign';
 
-// import { HelloSignEmbedded } from '@hellosign-skd/embedded';
 @Injectable()
 export class DropboxSignService {
-  private dropboxSign: DropboxSign.SignatureRequestApi;
+  private signatureRequestApi: DropboxSign.SignatureRequestApi;
 
-  constructor() {
-    this.dropboxSign = new DropboxSign.SignatureRequestApi();
-    this.dropboxSign.setApiKey(process.env.DROPBOX_SIGN_API_KEY);
+  constructor(private readonly configService: ConfigService) {
+    this.signatureRequestApi = new DropboxSign.SignatureRequestApi();
+    this.signatureRequestApi.username = this.configService.get<string>(
+      'DROPBOX_SIGN_API_KEY',
+    );
   }
 
-  async createEmbeddedSignatureRequest(templateFields: any) {
-    const response = await this.dropboxSign.signatureRequestGet.createEmbedded({
-      clientId: process.env.DROPBOX_SIGN_CLIENT_ID,
-      title: 'Test Agreement',
-      subject: 'Please sign this document',
-      message: 'Let us know if you have questions.',
+  async createSignatureRequestWithTemplate(data: any) {
+    const templateId = this.configService.get<string>('DROPBOX_TEMPLATE_ID');
+    const customFields: DropboxSign.SubCustomField[] = [
+      { name: 'sellerSign', value: data.sellerSign },
+      { name: 'sellerName', value: data.sellerName },
+      { name: 'agreementDate', value: data.agreementDate },
+      { name: 'agreementAmount', value: data.agreementAmount },
+      { name: 'duration', value: data.duration },
+      { name: 'extensionPeriod', value: data.extensionPeriod },
+      { name: 'extensionAmount', value: data.extensionAmount },
+      { name: 'propertyLocation', value: data.propertyLocation },
+    ];
+
+    const ccs: DropboxSign.SubCC[] = [
+      { role: 'Accounting', emailAddress: 'accounting@example.com' },
+    ];
+
+    const requestData: DropboxSign.SignatureRequestSendWithTemplateRequest = {
+      templateIds: [templateId],
+      subject: 'Purchase Order',
+      message: 'Glad we could come to an agreement.',
       signers: [
         {
-          email_address: templateFields.sellerSign,
-          name: templateFields.sellerName,
+          role: 'Client',
+          emailAddress: data.clientEmail,
+          name: data.clientName,
         },
       ],
-      files: process.env.DROPBOX_TEMPLATE_ID,
-      custom_fields: templateFields,
-    });
-    return response;
-  }
+      ccs,
+      customFields,
+      testMode: true,
+    };
 
-  async getEmbeddedSigningUrl(signatureId: string) {
-    const response = await this.dropboxSign.embedded.getSignUrl(signatureId);
-    return response.embedded.sign_url;
-  }
-
-  async verifyWebhook(request: any, signature: string) {
-    const isValid = await this.dropboxSign.webhook.verify(
-      request.body,
-      signature,
-    );
-    return isValid;
+    try {
+      const response =
+        await this.signatureRequestApi.signatureRequestSendWithTemplate(
+          requestData,
+        );
+      return response.body;
+    } catch (error) {
+      console.error('Error creating signature request:', error.body);
+      throw error;
+    }
   }
 }
