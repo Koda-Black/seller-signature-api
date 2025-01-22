@@ -10,7 +10,7 @@ import { AgreementsService } from './agreement.service';
 import { DropboxSignService } from '../dropbox/dropbox.service';
 import { AgreementDto } from './dto/agreement.dto';
 
-@Controller('agreements')
+@Controller('agreement')
 export class AgreementsController {
   constructor(
     private readonly agreementsService: AgreementsService,

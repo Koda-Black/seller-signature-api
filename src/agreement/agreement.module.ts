@@ -8,7 +8,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Module({
   imports: [PrismaModule, DropboxModule],
-  // controllers: [AgreementsService],
+  controllers: [AgreementsController],
   providers: [AgreementsService, PrismaService, DropboxSignService],
 })
 export class AgreementsModule {}

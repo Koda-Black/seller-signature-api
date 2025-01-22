@@ -27,7 +27,7 @@ export class DropboxSignService {
     ];
 
     const ccs: DropboxSign.SubCC[] = [
-      { role: 'Accounting', emailAddress: 'accounting@example.com' },
+      { role: 'Sender', emailAddress: 'onuorah2kingsley@gmail.com' },
     ];
 
     const requestData: DropboxSign.SignatureRequestSendWithTemplateRequest = {
@@ -37,8 +37,10 @@ export class DropboxSignService {
       signers: [
         {
           role: 'Client',
-          emailAddress: data.clientEmail,
-          name: data.clientName,
+          // emailAddress: data.clientEmail,
+          // name: data.clientName,
+          emailAddress: 'kodablack.me@gmail.com',
+          name: 'Kelechi NAN',
         },
       ],
       ccs,
