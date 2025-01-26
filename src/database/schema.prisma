@@ -9,7 +9,7 @@ datasource db {
 
 model Agreement {
   id               Int      @id @default(autoincrement())
-  agreementDate    DateTime
+  agreementDate    String
   agreementAmount  Float
   duration         String
   extensionPeriod  String?
@@ -28,6 +28,7 @@ model DocumentInstance {
   agreementId          Int      // Foreign key linking to Agreement
   signatureRequestId   String
   status               String   // Status like "signed", "pending", etc.
+  downloadUrl         String? 
   createdAt            DateTime @default(now())
   
   Agreement            Agreement @relation(fields: [agreementId], references: [id]) // Define the relationship

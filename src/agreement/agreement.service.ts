@@ -11,8 +11,6 @@ export class AgreementsService {
   ) {}
 
   async createAgreement(data: AgreementDto) {
-    const newAgreement = await this.prisma.agreement.create({ data });
-
     // Prepare data for Dropbox Sign
     const templateFields = {
       sellerSign: data.sellerSign,
@@ -24,30 +22,61 @@ export class AgreementsService {
       extensionAmount: data.extensionAmount,
       propertyLocation: data.propertyLocation,
       sellerEmail: data.sellerEmail,
+      // buyerEmail: data.buyerEmail,
+      // buyerName: data.buyerName,
     };
 
     // Call Dropbox Sign service to send the signature request
-    const response =
-      await this.dropboxSignService.createSignatureRequestWithTemplate(
-        templateFields,
-      );
+    let signatureRequestResponse;
+    try {
+      signatureRequestResponse =
+        await this.dropboxSignService.createSignatureRequestWithTemplate(
+          templateFields,
+        );
+    } catch (error) {
+      console.error('Error sending signature request:', error);
+      throw new Error('Failed to send signature request. No data was saved.');
+    }
 
-    // Extract the necessary IDs from the response
-    if (!response || !response.signatureRequest) {
+    // Verify the response contains a valid signature request ID
+    if (
+      !signatureRequestResponse ||
+      !signatureRequestResponse.signatureRequest ||
+      !signatureRequestResponse.signatureRequest.signatureRequestId
+    ) {
       throw new Error(
         'Error: Dropbox Sign did not return a valid signature request ID.',
       );
     }
 
-    // Save Dropbox Sign data to the database
-    const documentData = {
-      agreementId: newAgreement.id,
-      signatureRequestId: response.signatureRequest.signatureRequestId,
-      status: 'submitted',
-    };
-    await this.prisma.documentInstance.create({ data: documentData });
+    // Extract the signature request ID
+    const signatureRequestId =
+      signatureRequestResponse.signatureRequest.signatureRequestId;
 
-    return newAgreement;
+    // Save the agreement and document instance to the database
+    let newAgreement;
+    try {
+      // Create the agreement in the database
+      newAgreement = await this.prisma.agreement.create({ data });
+
+      // Save the document instance with the signature request ID and initial status
+      await this.storeDocumentInstance({
+        agreementId: newAgreement.id,
+        signatureRequestId: signatureRequestId,
+        downloadUrl: '',
+        status: 'sent', // Initial status from the first event
+      });
+    } catch (error) {
+      console.error('Error saving agreement to the database:', error);
+      throw new Error(
+        'Failed to save agreement to the database. No data was saved.',
+      );
+    }
+
+    return {
+      agreement: newAgreement,
+      signatureRequest: signatureRequestResponse,
+    };
   }
 
   async getAgreements() {
@@ -55,6 +84,13 @@ export class AgreementsService {
   }
 
   async storeDocumentInstance(documentData: any) {
-    return this.prisma.documentInstance.create({ data: documentData });
+    return this.prisma.documentInstance.create({
+      data: {
+        agreementId: documentData.agreementId,
+        signatureRequestId: documentData.signatureRequestId,
+        status: documentData.status || 'sent',
+        downloadUrl: documentData.downloadUrl || '',
+      },
+    });
   }
 }

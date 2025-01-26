@@ -1,10 +1,33 @@
-import { Controller, Post, Headers, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Headers,
+  Req,
+  Res,
+  Query,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { WebhookService } from './webhook.service';
 
 @Controller('webhooks')
 export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}
+
+  @Get()
+  handleWebhookVerification(
+    @Query('challenge') challenge: string,
+    @Res() res: Response,
+  ) {
+    // Respond with the challenge value to verify the webhook URL
+    if (challenge) {
+      return res.status(200).send(challenge);
+    } else {
+      return res
+        .status(400)
+        .json({ message: 'Challenge parameter is missing.' });
+    }
+  }
 
   @Post()
   async handleWebhook(
@@ -13,6 +36,8 @@ export class WebhookController {
     @Res() res: Response,
   ) {
     const payload = JSON.stringify(req.body);
+
+    console.log('Webhook payload:', payload);
 
     // Verify webhook signature
     if (!this.webhookService.verifySignature(payload, signature)) {
